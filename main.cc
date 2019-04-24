@@ -69,6 +69,8 @@ public:
         }
         cilk_sync;
     }
+
+private:
     
     Matrix_t(Index_t nrows) : nrows_(nrows)
     {
@@ -92,7 +94,6 @@ public:
     {
         rows_[i] = new Row_t(); // allocRow must be spawned on correct nlet
     }
-private:
 
     Index_t nrows_;
     Index_t nrows_per_nodelet_;
