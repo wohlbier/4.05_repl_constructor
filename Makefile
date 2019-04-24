@@ -13,9 +13,11 @@ EMU_SIM_ARGS += --short_trace
 
 EMU_PROFILE = $(EMU_PATH)/bin/emusim_profile
 
-EXE  = repl_class
+EXE  = repl_constructor
 EMU_EXE = $(EXE).mwx
 
+CPPFLAGS =
+#CPPFLAGS += -D__PINGPONG__
 LDFLAGS = -lemu_c_utils
 
 $(EMU_EXE) : $(EMU_OBJS)
