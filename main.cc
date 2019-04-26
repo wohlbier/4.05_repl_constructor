@@ -61,7 +61,7 @@ public:
 
     void allocateRows()
     {
-#if 0
+#if 1 // this shows ping pong, change 1 to 0 to get rid of ping pong
         // local mallocs on each nodelet
         for (Index_t i = 0; i < nrows_; ++i)
         {
