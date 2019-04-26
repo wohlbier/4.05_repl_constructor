@@ -61,13 +61,45 @@ public:
 
     void allocateRows()
     {
+#if 0
         // local mallocs on each nodelet
         for (Index_t i = 0; i < nrows_; ++i)
         {
-            cilk_migrate_hint(rows_ + i);
+            ppRow_t lrows = rows_;
+            cilk_migrate_hint(lrows + i);
+            //cilk_migrate_hint(rows_ + i);
             cilk_spawn allocateRow(i);
         }
         cilk_sync;
+#else
+        Index_t i;
+        ppRow_t lrows = rows_;
+        i = 0;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        i++;
+        cilk_migrate_hint(lrows + i);
+        cilk_spawn allocateRow(i);
+        cilk_sync;
+#endif
     }
 
 private:
@@ -84,9 +116,7 @@ private:
             memcpy(mw_get_nth(this, i), mw_get_nth(this, 0), sizeof(*this));
         }
 
-#ifdef __PINGPONG__
         allocateRows();
-#endif
     }
 
     // localalloc a single row
@@ -108,9 +138,5 @@ int main(int argc, char* argv[])
 
     Matrix_t * A = Matrix_t::create(nrows);
 
-#ifndef __PINGPONG__
-    A->allocateRows();
-#endif
-    
     return 0;
 }

@@ -17,7 +17,6 @@ EXE  = repl_constructor
 EMU_EXE = $(EXE).mwx
 
 CPPFLAGS =
-#CPPFLAGS += -D__PINGPONG__
 LDFLAGS = -lemu_c_utils
 
 $(EMU_EXE) : $(EMU_OBJS)
