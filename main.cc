@@ -53,62 +53,14 @@ public:
     Matrix_t(Matrix_t &&) = delete;
     Matrix_t & operator=(Matrix_t &&) = delete;
     
-    Index_t * nodelet_addr(Index_t i)
-    {
-        // dereferencing causes migrations
-        return (Index_t *)(rows_ + i);
-    }
-
-    void allocateRows()
-    {
-#if 1 // this shows ping pong, change 1 to 0 to get rid of ping pong
-        // local mallocs on each nodelet
-        for (Index_t i = 0; i < nrows_; ++i)
-        {
-            ppRow_t lrows = rows_;
-            cilk_migrate_hint(lrows + i);
-            //cilk_migrate_hint(rows_ + i);
-            cilk_spawn allocateRow(i);
-        }
-        cilk_sync;
-#else
-        Index_t i;
-        ppRow_t lrows = rows_;
-        i = 0;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        i++;
-        cilk_migrate_hint(lrows + i);
-        cilk_spawn allocateRow(i);
-        cilk_sync;
-#endif
-    }
-
 private:
     
     Matrix_t(Index_t nrows) : nrows_(nrows)
     {
         nrows_per_nodelet_ = nrows_ + nrows_ % NODELETS();
 
-        rows_ = (ppRow_t)mw_malloc1dlong(nrows_);
+        rows_ = (ppRow_t)mw_malloc2d(NODELETS(),
+                                     nrows_per_nodelet_ * sizeof(Row_t));
 
         // replicate the class across nodelets
         for (Index_t i = 1; i < NODELETS(); ++i)
@@ -116,13 +68,21 @@ private:
             memcpy(mw_get_nth(this, i), mw_get_nth(this, 0), sizeof(*this));
         }
 
-        allocateRows();
+        for (Index_t i = 0; i < NODELETS(); ++i)
+        {
+            cilk_migrate_hint(rows_ + i);
+            cilk_spawn allocateRows(i);
+        }
+        cilk_sync;
     }
 
     // localalloc a single row
-    void allocateRow(Index_t i)
+    void allocateRows(Index_t i)
     {
-        rows_[i] = new Row_t(); // allocRow must be spawned on correct nlet
+        for (Index_t j = 0; j < nrows_per_nodelet_; ++j)
+        {
+            new(rows_[i] + j) Row_t();
+        }
     }
 
     Index_t nrows_;
