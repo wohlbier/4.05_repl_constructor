@@ -2,8 +2,8 @@ SRCS = main.cc
 EMU_OBJS = $(subst .cc,.emu.o,$(SRCS))
 
 #EMU_PATH = /local/devel/packages/emu-18.11-cplus
-#EMU_PATH = /local/devel/packages/emu-19.02
-EMU_PATH = /home/jgwohlbier/devel/packages/emu-19.02
+EMU_PATH = /local/devel/packages/emu-19.02
+#EMU_PATH = /home/jgwohlbier/devel/packages/emu-19.02
 EMU_CXX = $(EMU_PATH)/bin/emu-cc
 EMU_SIM = $(EMU_PATH)/bin/emusim.x
 
@@ -26,6 +26,7 @@ run : $(EMU_EXE)
 	$(EMU_SIM) $(EMU_SIM_OPTS) $(EMU_EXE)
 
 profile : $(EMU_EXE)
+	EMU_CDC_DIFF=1 \
 	$(EMU_PROFILE) profile $(EMU_SIM_ARGS) -- $(EMU_EXE)
 
 %.emu.o: %.cc
