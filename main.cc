@@ -76,7 +76,6 @@ private:
         cilk_sync;
     }
 
-    // localalloc a single row
     void allocateRows(Index_t i)
     {
         for (Index_t j = 0; j < nrows_per_nodelet_; ++j)
