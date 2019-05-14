@@ -57,7 +57,7 @@ private:
     
     Matrix_t(Index_t nrows) : nrows_(nrows)
     {
-        nrows_per_nodelet_ = nrows_ + nrows_ % NODELETS();
+        nrows_per_nodelet_ = nrows_ / NODELETS() + nrows_ % NODELETS();
 
         rows_ = (ppRow_t)mw_malloc2d(NODELETS(),
                                      nrows_per_nodelet_ * sizeof(Row_t));

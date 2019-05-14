@@ -26,6 +26,7 @@ run : $(EMU_EXE)
 	$(EMU_SIM) $(EMU_SIM_OPTS) $(EMU_EXE)
 
 profile : $(EMU_EXE)
+	EMU_CDC_DIFF_FILE=profile/$(EXE).cdc.0.npy \
 	EMU_CDC_DIFF=1 \
 	$(EMU_PROFILE) profile $(EMU_SIM_ARGS) -- $(EMU_EXE)
 
